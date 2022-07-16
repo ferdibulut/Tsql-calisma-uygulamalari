@@ -1,0 +1,17 @@
+Create Trigger Brute_force_logon_Control
+on all server
+for logon
+as
+begin 
+
+declare @Count as int
+select @Count=count(*) from AUDIT.dbo.Brute_Force_Attack
+where ComputerIp=CONNECTIONPROPERTY('client_net_address')
+select @Count
+IF ISNULL(@Count,0)>0
+BEGIN
+ROLLBACK
+END
+end
+
+

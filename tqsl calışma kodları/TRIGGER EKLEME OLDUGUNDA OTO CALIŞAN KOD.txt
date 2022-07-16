@@ -1,0 +1,15 @@
+CREATE TRIGGER TRG_TRANSACTION_INSERT
+ON ItemTransactions
+AFTER INSERT
+AS 
+BEGIN 
+DECLARE @ItemId as INT
+DECLARE @Amount as INT
+DECLARE @IoType as SMALLINT
+
+SELECT @ItemId=ItemId,@Amount=Amount,@IoType=IoType from INSERTED
+IF @IoType=1
+UPDATE Stock SET Stock=Stock+@Amount WHERE ItemId=@ItemId
+IF @IoType=2
+UPDATE Stock SET Stock=Stock-@Amount WHERE ItemId=@ItemId
+END

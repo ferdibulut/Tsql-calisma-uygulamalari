@@ -1,0 +1,23 @@
+CREATE TRIGGER TRG_TRANSACTION_UPDATE
+ON ItemTransactions
+AFTER UPDATE
+AS 
+BEGIN 
+DECLARE @ItemId as INT
+DECLARE @IoType as INT
+DECLARE @OLDAMOUNT AS INT 
+DECLARE @NEWAMOUNT AS INT
+DECLARE @Amount AS INT
+SELECT @ItemId=@ItemId,@IoType=@IoType,@OLDAMOUNT=Amount from Deleted
+
+Select @NEWAMOUNT=Amount From INSERTED
+
+SELECT @Amount=@OLDAMOUNT-@NEWAMOUNT
+
+IF @IoType=1
+UPDATE Stock SET Stock=Stock-@Amount WHERE ItemId=@ItemId
+
+IF @IoType=2
+UPDATE Stock SET Stock=Stock+@Amount WHERE ItemId=@ItemId
+
+END

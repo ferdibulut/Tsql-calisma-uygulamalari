@@ -1,0 +1,27 @@
+create trigger sa_allowed_control
+on all server
+for logon
+as
+begin
+if SUSER_NAME()='sa'
+begin
+declare @count  as int
+select @count=COUNT(*)FROM HR.dbo.AllowwedComputer
+WHERE IpAddress=CONNECTIONPROPERTY('client_net_address')
+and PromramName=PROGRAM_NAME()
+
+if ISNULL(@count,0)=0
+begin
+declare @msg as varchar(1000)
+set @msg='unauthorızed entry detected!'
+set @msg=@msg+'IPADDRESS:  '+CONVERT(varchar,CONNECTIONPROPERTY('client_net_address'))
+set @msg=@msg+'APPLICATION NAME:'+PROGRAM_NAME()
+
+EXEC msdb.dbo.sp_send_dbmail
+@profile_name='SecurityEmail',
+@recipients='ferdibulut_@outlook.com',
+@body=@msg,
+@subject='unauthorizedentry detected!'
+end
+end
+end
